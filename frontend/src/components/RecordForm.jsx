@@ -58,9 +58,16 @@ export function RecordForm({ title, fields, onSubmit, validate, initialValues, o
         setExpanded(false);
         setValues(fields.reduce((next, field) => ({ ...next, [field.name]: initialValue(field) }), {}));
       }
+    } catch (err) {
+      setValidationError(err.message || "Save failed");
     } finally {
       setSaving(false);
     }
+  }
+
+  function handleChange(name, value) {
+    setValues((prev) => ({ ...prev, [name]: value }));
+    setValidationError("");
   }
 
   function handleCancel() {
@@ -85,7 +92,7 @@ export function RecordForm({ title, fields, onSubmit, validate, initialValues, o
               {field.type === "select" ? (
                 <select
                   value={values[field.name]}
-                  onChange={(event) => setValues({ ...values, [field.name]: event.target.value })}
+                  onChange={(event) => handleChange(field.name, event.target.value)}
                 >
                   {field.options.map((option) => (
                     <option key={option} value={option}>
@@ -96,13 +103,13 @@ export function RecordForm({ title, fields, onSubmit, validate, initialValues, o
               ) : field.type === "textarea" ? (
                 <textarea
                   value={values[field.name]}
-                  onChange={(event) => setValues({ ...values, [field.name]: event.target.value })}
+                  onChange={(event) => handleChange(field.name, event.target.value)}
                 />
               ) : (
                 <input
                   type={field.type}
                   value={values[field.name]}
-                  onChange={(event) => setValues({ ...values, [field.name]: event.target.value })}
+                  onChange={(event) => handleChange(field.name, event.target.value)}
                   required
                 />
               )}
