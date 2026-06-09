@@ -1,17 +1,21 @@
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "/api";
 
+function cleanMsg(raw) {
+  return raw.replace(/^Value error,\s*/i, "");
+}
+
 function extractErrorMessage(status, text) {
   try {
     const body = JSON.parse(text);
     if (Array.isArray(body.detail) && body.detail.length > 0) {
-      return body.detail.map((e) => e.msg).join("; ");
+      return body.detail.map((e) => cleanMsg(e.msg)).join("；");
     }
     if (typeof body.detail === "string") {
-      return body.detail;
+      return cleanMsg(body.detail);
     }
-    return text || `Request failed: ${status}`;
+    return `请求失败（${status}）`;
   } catch {
-    return text || `Request failed: ${status}`;
+    return `请求失败（${status}）`;
   }
 }
 

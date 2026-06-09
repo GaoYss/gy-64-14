@@ -22,7 +22,7 @@ function validateInspection(payload) {
 }
 
 export function InspectionsPage() {
-  const { inspections, createRecord, updateRecord } = useAppData();
+  const { inspections, createRecord, updateRecord, refresh } = useAppData();
   const [editingRecord, setEditingRecord] = useState(null);
 
   async function handleEditSubmit(payload) {
@@ -37,6 +37,7 @@ export function InspectionsPage() {
         fields={inspectionFields}
         validate={validateInspection}
         onSubmit={(payload) => createRecord("inspections", payload)}
+        onError={refresh}
       />
       {editingRecord && (
         <RecordForm
@@ -46,6 +47,7 @@ export function InspectionsPage() {
           initialValues={editingRecord}
           onSubmit={handleEditSubmit}
           onCancel={() => setEditingRecord(null)}
+          onError={refresh}
         />
       )}
       <section className="panel">

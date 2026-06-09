@@ -17,7 +17,7 @@ function normalize(fields, values) {
   }, {});
 }
 
-export function RecordForm({ title, fields, onSubmit, validate, initialValues, onCancel }) {
+export function RecordForm({ title, fields, onSubmit, validate, initialValues, onCancel, onError }) {
   const isEdit = !!initialValues;
   const [expanded, setExpanded] = useState(isEdit);
   const [saving, setSaving] = useState(false);
@@ -59,7 +59,8 @@ export function RecordForm({ title, fields, onSubmit, validate, initialValues, o
         setValues(fields.reduce((next, field) => ({ ...next, [field.name]: initialValue(field) }), {}));
       }
     } catch (err) {
-      setValidationError(err.message || "Save failed");
+      setValidationError(err.message || "保存失败");
+      onError?.();
     } finally {
       setSaving(false);
     }
