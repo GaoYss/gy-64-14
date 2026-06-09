@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Plus } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Plus, X } from "lucide-react";
 
 function initialValue(field) {
   if (field.type === "number") return 0;
@@ -17,13 +17,26 @@ function normalize(fields, values) {
   }, {});
 }
 
-export function RecordForm({ title, fields, onSubmit, validate }) {
-  const [expanded, setExpanded] = useState(false);
+export function RecordForm({ title, fields, onSubmit, validate, initialValues, onCancel }) {
+  const isEdit = !!initialValues;
+  const [expanded, setExpanded] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [values, setValues] = useState(() =>
-    fields.reduce((next, field) => ({ ...next, [field.name]: initialValue(field) }), {}),
+    isEdit
+      ? fields.reduce((next, field) => ({ ...next, [field.name]: initialValues[field.name] ?? initialValue(field) }), {})
+      : fields.reduce((next, field) => ({ ...next, [field.name]: initialValue(field) }), {}),
   );
   const [validationError, setValidationError] = useState("");
+
+  useEffect(() => {
+    if (isEdit) {
+      setValues(
+        fields.reduce((next, field) => ({ ...next, [field.name]: initialValues[field.name] ?? initialValue(field) }), {}),
+      );
+      setExpanded(true);
+      setValidationError("");
+    }
+  }, [initialValues, isEdit, fields]);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -39,19 +52,30 @@ export function RecordForm({ title, fields, onSubmit, validate }) {
     setSaving(true);
     try {
       await onSubmit(payload);
-      setExpanded(false);
-      setValues(fields.reduce((next, field) => ({ ...next, [field.name]: initialValue(field) }), {}));
+      if (isEdit) {
+        onCancel?.();
+      } else {
+        setExpanded(false);
+        setValues(fields.reduce((next, field) => ({ ...next, [field.name]: initialValue(field) }), {}));
+      }
     } finally {
       setSaving(false);
     }
   }
 
+  function handleCancel() {
+    setValidationError("");
+    onCancel?.();
+  }
+
   return (
     <section className="form-panel">
-      <button className="primary-action" type="button" onClick={() => setExpanded((current) => !current)}>
-        <Plus size={16} />
-        <span>{title}</span>
-      </button>
+      {!isEdit && (
+        <button className="primary-action" type="button" onClick={() => setExpanded((current) => !current)}>
+          <Plus size={16} />
+          <span>{title}</span>
+        </button>
+      )}
       {expanded ? (
         <form className="record-form" onSubmit={handleSubmit}>
           {validationError && <div className="validation-error">{validationError}</div>}
@@ -84,9 +108,17 @@ export function RecordForm({ title, fields, onSubmit, validate }) {
               )}
             </label>
           ))}
-          <button className="submit-button" type="submit" disabled={saving}>
-            {saving ? "Saving..." : "Save"}
-          </button>
+          <div className="form-actions">
+            <button className="submit-button" type="submit" disabled={saving}>
+              {saving ? "Saving..." : "Save"}
+            </button>
+            {isEdit && (
+              <button className="cancel-button" type="button" onClick={handleCancel}>
+                <X size={14} />
+                <span>Cancel</span>
+              </button>
+            )}
+          </div>
         </form>
       ) : null}
     </section>

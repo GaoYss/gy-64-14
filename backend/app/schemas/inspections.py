@@ -17,9 +17,9 @@ class InspectionBase(BaseModel):
     issues: str = ""
 
     @model_validator(mode="after")
-    def check_issues_when_rectification(self):
-        if self.result == "整改" and not self.issues.strip():
-            raise ValueError("验收结果为"整改"时，整改问题不能为空")
+    def check_issues_when_not_passed(self):
+        if self.result in ("整改", "failed") and not self.issues.strip():
+            raise ValueError("验收不通过时，整改问题不能为空")
         return self
 
 
@@ -37,9 +37,9 @@ class InspectionUpdate(BaseModel):
     issues: str | None = None
 
     @model_validator(mode="after")
-    def check_issues_when_rectification(self):
-        if self.result == "整改" and (self.issues is None or not self.issues.strip()):
-            raise ValueError("验收结果为"整改"时，整改问题不能为空")
+    def check_issues_when_not_passed(self):
+        if self.result in ("整改", "failed") and (self.issues is None or not self.issues.strip()):
+            raise ValueError("验收不通过时，整改问题不能为空")
         return self
 
 

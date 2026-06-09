@@ -309,8 +309,26 @@ button {
 }
 
 .span-2,
-.submit-button {
+.form-actions {
   grid-column: 1 / -1;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.cancel-button {
+  border: 1px solid #d6dee3;
+  border-radius: 8px;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 14px;
+  background: #ffffff;
+  color: #31414d;
 }
 
 .table-wrap {
