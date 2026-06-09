@@ -17,18 +17,28 @@ function normalize(fields, values) {
   }, {});
 }
 
-export function RecordForm({ title, fields, onSubmit }) {
+export function RecordForm({ title, fields, onSubmit, validate }) {
   const [expanded, setExpanded] = useState(false);
   const [saving, setSaving] = useState(false);
   const [values, setValues] = useState(() =>
     fields.reduce((next, field) => ({ ...next, [field.name]: initialValue(field) }), {}),
   );
+  const [validationError, setValidationError] = useState("");
 
   async function handleSubmit(event) {
     event.preventDefault();
+    setValidationError("");
+    const payload = normalize(fields, values);
+    if (validate) {
+      const error = validate(payload);
+      if (error) {
+        setValidationError(error);
+        return;
+      }
+    }
     setSaving(true);
     try {
-      await onSubmit(normalize(fields, values));
+      await onSubmit(payload);
       setExpanded(false);
       setValues(fields.reduce((next, field) => ({ ...next, [field.name]: initialValue(field) }), {}));
     } finally {
@@ -44,6 +54,7 @@ export function RecordForm({ title, fields, onSubmit }) {
       </button>
       {expanded ? (
         <form className="record-form" onSubmit={handleSubmit}>
+          {validationError && <div className="validation-error">{validationError}</div>}
           {fields.map((field) => (
             <label key={field.name} className={field.type === "textarea" ? "field span-2" : "field"}>
               <span>{field.label}</span>

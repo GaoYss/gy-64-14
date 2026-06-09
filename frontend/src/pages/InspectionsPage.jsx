@@ -13,6 +13,13 @@ const columns = [
   { key: "issues", label: "Issues" },
 ];
 
+function validateInspection(payload) {
+  if (payload.result === "整改" && !payload.issues.trim()) {
+    return "验收不通过时必须填写整改问题";
+  }
+  return "";
+}
+
 export function InspectionsPage() {
   const { inspections, createRecord } = useAppData();
 
@@ -21,6 +28,7 @@ export function InspectionsPage() {
       <RecordForm
         title="Schedule acceptance"
         fields={inspectionFields}
+        validate={validateInspection}
         onSubmit={(payload) => createRecord("inspections", payload)}
       />
       <section className="panel">

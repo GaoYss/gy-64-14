@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
 
 InspectionResult = Literal["pending", "passed", "整改", "failed"]
@@ -16,6 +16,12 @@ class InspectionBase(BaseModel):
     result: InspectionResult = "pending"
     issues: str = ""
 
+    @model_validator(mode="after")
+    def check_issues_when_rectification(self):
+        if self.result == "整改" and not self.issues.strip():
+            raise ValueError("验收结果为"整改"时，整改问题不能为空")
+        return self
+
 
 class InspectionCreate(InspectionBase):
     pass
@@ -29,6 +35,12 @@ class InspectionUpdate(BaseModel):
     inspector: str | None = None
     result: InspectionResult | None = None
     issues: str | None = None
+
+    @model_validator(mode="after")
+    def check_issues_when_rectification(self):
+        if self.result == "整改" and (self.issues is None or not self.issues.strip()):
+            raise ValueError("验收结果为"整改"时，整改问题不能为空")
+        return self
 
 
 class Inspection(InspectionBase):

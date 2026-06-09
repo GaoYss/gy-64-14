@@ -272,6 +272,16 @@ button {
   gap: 12px;
 }
 
+.validation-error {
+  grid-column: 1 / -1;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #fee2e2;
+  color: #a52828;
+  font-size: 14px;
+  font-weight: 500;
+}
+
 .field {
   display: grid;
   gap: 6px;
